@@ -38,17 +38,20 @@ public class Mp3PlayerService extends Service {
 
   protected void onHandleIntent(Intent intent) {
     if (intent != null) {
+      final List<ChapterBean> chapters = (List<ChapterBean>) intent.getSerializableExtra(EXTRA_PARAM1);
+      final int position = intent.getIntExtra(EXTRA_PARAM2, 0);
+      new Thread() {
+        @Override public void run() {
+          Mp3PlayerManager.getInstance().play(chapters, position);
+        }
+      }.start();
 
-      List<ChapterBean> chapters = (List<ChapterBean>) intent.getSerializableExtra(EXTRA_PARAM1);
-      int position = intent.getIntExtra(EXTRA_PARAM2, 0);
-
-      Mp3PlayerManager.getInstance().play(chapters, position);
     }
   }
+
   private class NoisyAudioStreamReceiver extends BroadcastReceiver {
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
+    @Override public void onReceive(Context context, Intent intent) {
       if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
         int state = intent.getIntExtra("state", -1);
         switch (state) {
@@ -62,13 +65,11 @@ public class Mp3PlayerService extends Service {
           default:
             break;
         }
-
       }
       //只监听拔出耳机
       if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
       }
     }
-
   }
 
   @Override public void onCreate() {

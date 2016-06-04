@@ -3,6 +3,7 @@ package com.linwoain.storytelling.mp3media;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import com.linwoain.storytelling.bean.ChapterBean;
+import com.linwoain.storytelling.bus.Progress;
 import com.linwoain.storytelling.bus.RxBus;
 import com.linwoain.storytelling.config.Constant;
 import com.linwoain.util.CacheUtil;
@@ -51,22 +52,21 @@ public class Mp3PlayerManager
   }
 
   private void preparePlay(String audioURL) {
-    LLogUtils.i(audioURL);
     try {
       player.setDataSource(audioURL);
-
       player.prepare();
     } catch (IOException e) {
-      LLogUtils.e("");
       e.printStackTrace();
     }
   }
 
   @Override public void onPrepared(MediaPlayer mp) {
     ChapterBean content = curChapters.get(curPos);
-    CacheUtil.save(Constant.MULU+content.getBookId(),content);
-    LLogUtils.i(content.getTitle()+"开始播放");
-    RxBus.get().post(Constant.PROGRESS_MULU,content);
+    CacheUtil.save(Constant.MULU + content.getBookId(), content);
+    RxBus.getDefault().post(content);
+    RxBus.getDefault()
+        .post(
+            new Progress(mp.getDuration(), content.getBookId(), true, curPos, content.getTitle()));
     mp.start();
   }
 
@@ -80,6 +80,31 @@ public class Mp3PlayerManager
   @Override public boolean onError(MediaPlayer mp, int what, int extra) {
     LLogUtils.e("播放出错了" + what);
     return false;
+  }
+
+  public void pause() {
+
+    if (player.isPlaying()) {
+      player.pause();
+    }
+  }
+
+  public void restart() {
+
+    if (player != null) {
+      player.start();
+    }
+  }
+
+  public int getPlayingBookId() {
+    if (curChapters.isEmpty()) {
+      return -1;
+    }
+    return curChapters.get(curPos).getBookId();
+  }
+
+  public boolean isPlaying() {
+    return player != null && player.isPlaying();
   }
 
   public void stop() {

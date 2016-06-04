@@ -13,6 +13,7 @@ import com.koushikdutta.ion.Ion;
 import com.linwoain.storytelling.adapter.BookAdapter;
 import com.linwoain.storytelling.bean.BookInfo;
 import com.linwoain.storytelling.bean.ChapterBean;
+import com.linwoain.storytelling.bus.Progress;
 import com.linwoain.storytelling.bus.RxBus;
 import com.linwoain.storytelling.config.Constant;
 import com.linwoain.util.CacheUtil;
@@ -21,15 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
 public class MainActivity extends AppCompatActivity {
 
   private String flowerUrl =
-      "http://42.121.125.229:8080/audible-book/service/audioBooksV2/getBookChaptersByPage?market=k-app360&refer=SearchResultBookList&dir=DESC&token=QUi2Cp%2BU09ITUXjudFZ2CtiCKUWfP1%2FT5KepiuHKXM77WDCYJwpQNoxu37pltHhH&pageSize=20&bookId=190518&imsi=460072521701419&ver=3.9.1&appKey=audibleBook";
+      "http://42.121.125.229:8080/audible-book/service/audioBooksV2/getBookChaptersByPage?market=k-app360&refer=SearchResultBookList&dir=DESC&token=QUi2Cp%2BU09ITUXjudFZ2CtiCKUWfP1%2FT5KepiuHKXM77WDCYJwpQNoxu37pltHhH&pageSize=200&bookId=190518&imsi=460072521701419&ver=3.9.1&appKey=audibleBook";
   private String huaxuyinUrl =
-      "http://42.121.125.229:8080/audible-book/service/audioBooksV2/getBookChaptersByPage?market=k-app360&refer=SearchResultBookList&dir=ASC&token=QUi2Cp%2BU09ITUXjudFZ2CtiCKUWfP1%2FT5KepiuHKXM77WDCYJwpQNoxu37pltHhH&pageSize=20&bookId=212947&imsi=460072521701419&ver=3.9.1&appKey=audibleBook";
+      "http://42.121.125.229:8080/audible-book/service/audioBooksV2/getBookChaptersByPage?market=k-app360&refer=SearchResultBookList&dir=ASC&token=QUi2Cp%2BU09ITUXjudFZ2CtiCKUWfP1%2FT5KepiuHKXM77WDCYJwpQNoxu37pltHhH&pageSize=200&bookId=212947&imsi=460072521701419&ver=3.9.1&appKey=audibleBook";
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -42,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
   private void initView() {
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
     listView = (ListView) findViewById(R.id.listview);
+    setSupportActionBar(toolbar);
     RxAdapterView.itemClicks(listView)
         .throttleFirst(500, TimeUnit.MILLISECONDS)
         .subscribeOn(AndroidSchedulers.mainThread())
@@ -109,24 +111,26 @@ public class MainActivity extends AppCompatActivity {
 
 
   private void registerEventBus() {
-    register = RxBus.get().register(Constant.PROGRESS_MULU, ChapterBean.class);
-    register.subscribe(new Action1<ChapterBean>() {
-      @Override public void call(ChapterBean v) {
-        LLogUtils.log();
-        for (BookInfo book : books) {
-          if (book.getBookId() == v.getBookId()) {
-            book.setTitle(v.getTitle());
-            setData();
+
+     register =
+        RxBus.getDefault().toObserverable(Progress.class).subscribe(new Action1<Progress>() {
+          @Override public void call(Progress bean) {
+            for (BookInfo book : books) {
+              if (book.getBookId() == bean.getBookId()) {
+                book.setTitle(bean.getTitle());
+                setData();
+              }
+            }
           }
-        }
-      }
-    });
+        });
   }
 
-  Observable<ChapterBean> register;
+  Subscription register;
 
   @Override protected void onDestroy() {
-    RxBus.get().unregister(Constant.PROGRESS_MULU, register);
+    if (register.isUnsubscribed()) {
+      register.unsubscribe();
+    }
     super.onDestroy();
 
   }
@@ -140,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
     for (BookInfo book : books) {
       ChapterBean bean = (ChapterBean) CacheUtil.getBaseBean(Constant.MULU + book.getBookId());
       if (bean != null) {
-        LLogUtils.i(bean.getTitle());
+
         book.setTitle(bean.getTitle());
         setData();
       }

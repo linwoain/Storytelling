@@ -1,73 +1,53 @@
 package com.linwoain.storytelling.bus;
 
-import android.support.annotation.NonNull;
-import android.util.Log;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import rx.Observable;
 import rx.subjects.PublishSubject;
+import rx.subjects.SerializedSubject;
 import rx.subjects.Subject;
 
 /**
- * Author: wangjie
- * Email: tiantian.china.2@gmail.com
- * Date: 6/11/15.
+ * RxBus
+ * Created by YoKeyword on 2015/6/17.
  */
 public class RxBus {
-  private static final String TAG = RxBus.class.getSimpleName();
-  private static RxBus instance;
-  public static boolean DEBUG = false;
+  private static volatile RxBus defaultInstance;
+  // 主题
+  private final Subject bus;
 
-  public static synchronized RxBus get() {
-    if (null == instance) {
-      instance = new RxBus();
-    }
-    return instance;
+  // PublishSubject只会把在订阅发生的时间点之后来自原始Observable的数据发射给观察者
+  public RxBus() {
+    bus = new SerializedSubject<>(PublishSubject.create());
   }
 
-  private RxBus() {
-  }
-
-  private ConcurrentHashMap<Object, List<Subject>> subjectMapper = new ConcurrentHashMap<>();
-
-  public <T> Observable<T> register(@NonNull Object tag, @NonNull Class<T> clazz) {
-    List<Subject> subjectList = subjectMapper.get(tag);
-    if (null == subjectList) {
-      subjectList = new ArrayList<>();
-      subjectMapper.put(tag, subjectList);
-    }
-
-    Subject<T, T> subject;
-    subjectList.add(subject = PublishSubject.create());
-    if (DEBUG) Log.d(TAG, "[register]subjectMapper: " + subjectMapper);
-    return subject;
-  }
-
-  public void unregister(@NonNull Object tag, @NonNull Observable observable) {
-    List<Subject> subjects = subjectMapper.get(tag);
-    if (null != subjects) {
-      subjects.remove(observable);
-      if (subjects.isEmpty()) {
-        subjectMapper.remove(tag);
+  // 单例RxBus
+  public static RxBus getDefault() {
+    RxBus rxBus = defaultInstance;
+    if (defaultInstance == null) {
+      synchronized (RxBus.class) {
+        rxBus = defaultInstance;
+        if (defaultInstance == null) {
+          rxBus = new RxBus();
+          defaultInstance = rxBus;
+        }
       }
     }
-
-    if (DEBUG) Log.d(TAG, "[unregister]subjectMapper: " + subjectMapper);
+    return rxBus;
   }
 
-  public void post(@NonNull Object content) {
-    post(content.getClass().getName(), content);
+  // 提供了一个新的事件
+  public void post(Object o) {
+    bus.onNext(o);
   }
 
-  @SuppressWarnings("unchecked") public void post(@NonNull Object tag, @NonNull Object content) {
-    List<Subject> subjectList = subjectMapper.get(tag);
-
-    if (subjectList!=null&&!subjectList.isEmpty()) {
-      for (Subject subject : subjectList) {
-        subject.onNext(content);
-      }
-    }
-    if (DEBUG) Log.d(TAG, "[send]subjectMapper: " + subjectMapper);
+  // 根据传递的 eventType 类型返回特定类型(eventType)的 被观察者
+  public <T> Observable<T> toObserverable(Class<T> eventType) {
+    return bus.ofType(eventType);
+    //        这里感谢小鄧子的提醒: ofType = filter + cast
+    //        return bus.filter(new Func1<Object, Boolean>() {
+    //            @Override
+    //            public Boolean call(Object o) {
+    //                return eventType.isInstance(o);
+    //            }
+    //        }) .cast(eventType);
   }
 }

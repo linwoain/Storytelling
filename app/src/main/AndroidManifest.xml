@@ -31,17 +31,17 @@
     <service
         android:exported="false"
         android:name=".service.DaemonService"
-        android:process=":daemon">
+        >
     </service>
     <service
         android:exported="false"
         android:name=".service.CancelService"
-        android:process=":daemon">
+        >
     </service>
     <service
         android:exported="false"
         android:name=".service.Mp3PlayerService"
-        android:process=":daemon">
+        >
     </service>
   </application>
 

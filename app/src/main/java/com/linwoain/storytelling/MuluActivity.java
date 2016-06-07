@@ -1,13 +1,15 @@
 package com.linwoain.storytelling;
 
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 import com.linwoain.storytelling.adapter.MuluAdapter;
 import com.linwoain.storytelling.bean.BookInfo;
 import com.linwoain.storytelling.bean.ChapterBean;
@@ -16,17 +18,14 @@ import com.linwoain.storytelling.bus.RxBus;
 import com.linwoain.storytelling.config.Constant;
 import com.linwoain.storytelling.mp3media.Mp3PlayerManager;
 import com.linwoain.storytelling.service.Mp3PlayerService;
-import com.linwoain.storytelling.widget.CommonListView;
 import com.linwoain.util.CacheUtil;
 import com.linwoain.util.LLogUtils;
-import com.linwoain.util.ToastUtil;
 import java.util.ArrayList;
 import java.util.List;
 import rx.Subscription;
 import rx.functions.Action1;
 
-public class MuluActivity extends AppCompatActivity
-    implements CommonListView.RefreshCallBack, CommonListView.OnItemClickCallBack {
+public class MuluActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -44,6 +43,8 @@ public class MuluActivity extends AppCompatActivity
             if (progress.getBookId() == info.getBookId()) {
               if (progress.isPlaying()) {
                 play.setImageResource(R.drawable.playing);
+                showPlay();
+
                 play.setOnClickListener(pauseListener);
               }
             }
@@ -51,12 +52,20 @@ public class MuluActivity extends AppCompatActivity
         });
   }
 
+  private void showPlay() {
+    Drawable drawable = play.getDrawable();
+    if (drawable instanceof AnimationDrawable) {
+      AnimationDrawable ad = (AnimationDrawable) drawable;
+      ad.start();
+    }
+  }
+
   @Override protected void onResume() {
     super.onResume();
     if (Mp3PlayerManager.getInstance().getPlayingBookId() == info.getBookId()
         && Mp3PlayerManager.getInstance().isPlaying()) {
       play.setImageResource(R.drawable.playing);
-      LLogUtils.log();
+      showPlay();
       play.setOnClickListener(pauseListener);
     }
   }
@@ -115,10 +124,11 @@ public class MuluActivity extends AppCompatActivity
     tvTitle = (TextView) findViewById(R.id.bar_title);
 
     play = (ImageButton) findViewById(R.id.play);
+    assert play != null;
     play.setOnClickListener(playListener);
-    listview = (CommonListView) findViewById(R.id.listview);
-    listview.setRefreshCallBack(this);
-    listview.setItemClickCallBack(this);
+    listview = (ListView) findViewById(R.id.listview);
+    assert listview != null;
+    listview.setOnItemClickListener(this);
   }
 
   private void initData() {
@@ -130,55 +140,17 @@ public class MuluActivity extends AppCompatActivity
   }
 
   private BookInfo info;
-  private CommonListView listview;
+  private ListView listview;
   private MuluAdapter adapter;
   private Toolbar toolbar;
 
-  private int page = 1;
-
   List<ChapterBean> chapters = new ArrayList<>();
-
-  @Override public void onRefresh(CommonListView view) {
-    page = 1;
-    getData();
-  }
-
-  @Override public void onLoadMore(CommonListView view) {
-    getData();
-  }
-
-  private void getData() {
-    Ion.with(this)
-        .load(info.getUrl() + "&pageIndex=" + page)
-        .as(BookInfo.class)
-        .setCallback(new FutureCallback<BookInfo>() {
-          @Override public void onCompleted(Exception e, BookInfo result) {
-
-            if (e == null) {
-              List<ChapterBean> chapter = result.getChapter();
-              if (chapter != null && !chapter.isEmpty()) {
-                if (page == 1) {
-                  chapters.clear();
-                }
-                chapters.addAll(chapter);
-                setData();
-              } else {
-                listview.setNoMore();
-                ToastUtil.show("已到结尾");
-              }
-            } else {
-              listview.setLoadMoreError();
-            }
-          }
-        });
-  }
 
   private void setData() {
     for (ChapterBean chapter : chapters) {
       chapter.setBookId(info.getBookId());
     }
 
-    page++;
     if (adapter == null) {
       adapter = new MuluAdapter(this, chapters);
       listview.setAdapter(adapter);
@@ -187,7 +159,7 @@ public class MuluActivity extends AppCompatActivity
     }
   }
 
-  @Override public void onItemClick(int position, CommonListView view) {
+  @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     Mp3PlayerService.openMp3(this, chapters, position);
   }
 }

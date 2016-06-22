@@ -6,7 +6,7 @@
   <string name="large_text">此应用仅为了分享念汝播讲过的小说花千骨与华胥引。
     \n版权属于原作者。
     \n现阶段仅支持在线收听。如果使用3G/4G网络，请注意流量消耗（本人不对消耗的流量负责(*^_^*)）！
-  每集大概在10M左右
+  每集大概在10M左右\n本项目已开源至https://github.com/linwoain/Storytelling 有做程序的小伙伴可以一起来
   </string>
   <string name="action_settings">Settings</string>
 </resources>

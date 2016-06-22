@@ -64,14 +64,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/linwoain/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/linwoain/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/linwoain/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testLinwoain/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testLinwoain/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testLinwoain/assets" type="java-test-resource" />
@@ -80,6 +72,14 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testLinwoain/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testLinwoain/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testLinwoain/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/jni" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestLinwoain/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/assets" type="java-resource" />
@@ -182,8 +182,8 @@
     <orderEntry type="library" exported="" scope="TEST" name="javax.inject-1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-24.0.0" level="project" />
     <orderEntry type="library" exported="" name="rxandroid-1.1.0" level="project" />
-    <orderEntry type="library" exported="" name="rxjava-1.1.1" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-24.0.0" level="project" />
+    <orderEntry type="library" exported="" name="rxjava-1.1.1" level="project" />
     <orderEntry type="library" exported="" name="support-vector-drawable-24.0.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="javawriter-2.1.1" level="project" />
     <orderEntry type="library" exported="" name="rxbinding-0.4.0" level="project" />

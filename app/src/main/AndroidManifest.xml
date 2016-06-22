@@ -33,18 +33,15 @@
 
     <service
         android:exported="false"
-        android:name=".service.DaemonService"
-        >
+        android:name=".service.DaemonService">
     </service>
     <service
         android:exported="false"
-        android:name=".service.CancelService"
-        >
+        android:name=".service.CancelService">
     </service>
     <service
         android:exported="false"
-        android:name=".service.Mp3PlayerService"
-        >
+        android:name=".service.Mp3PlayerService">
     </service>
 
     <meta-data
@@ -60,6 +57,11 @@
     <activity
         android:name="cn.bmob.v3.update.UpdateDialogActivity"
         android:theme="@android:style/Theme.Translucent.NoTitleBar">
+    </activity>
+    <activity
+        android:label="@string/about"
+        android:name=".AboutActivity"
+        android:theme="@style/AppTheme.NoActionBar">
     </activity>
   </application>
 

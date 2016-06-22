@@ -2,6 +2,7 @@ package com.linwoain.storytelling;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,11 +54,7 @@ public class MainActivity extends CommonActivity {
   private void initUmeng() {
     MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
     Bmob.initialize(this,"df810df15d0eabd12c6550465f6fcfc4");
-    Once.execute("update", new Once.OnceCallback() {
-      @Override public void onOnce() {
-        BmobUpdateAgent.initAppVersion(MainActivity.this);
-      }
-    });
+    BmobUpdateAgent.setUpdateCheckConfig(true);
     BmobUpdateAgent.update(this);
   }
 
@@ -86,6 +83,7 @@ public class MainActivity extends CommonActivity {
     int id = item.getItemId();
 
     if (id == R.id.action_settings) {
+      startActivity(new Intent(this,AboutActivity.class));
       return true;
     }
 

@@ -2,13 +2,10 @@ package com.linwoain.storytelling;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
-import cn.bmob.v3.Bmob;
-import cn.bmob.v3.update.BmobUpdateAgent;
 import com.jakewharton.rxbinding.widget.RxAdapterView;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -21,8 +18,9 @@ import com.linwoain.storytelling.common.CommonActivity;
 import com.linwoain.storytelling.config.Constant;
 import com.linwoain.util.CacheUtil;
 import com.linwoain.util.LLogUtils;
-import com.linwoain.util.Once;
 import com.umeng.analytics.MobclickAgent;
+import com.umeng.message.IUmengRegisterCallback;
+import com.umeng.message.PushAgent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -52,10 +50,14 @@ public class MainActivity extends CommonActivity {
   }
 
   private void initUmeng() {
-    MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
-    Bmob.initialize(this,"df810df15d0eabd12c6550465f6fcfc4");
-    BmobUpdateAgent.setUpdateCheckConfig(true);
-    BmobUpdateAgent.update(this);
+    PushAgent mPushAgent = PushAgent.getInstance(this);
+    mPushAgent.enable(new IUmengRegisterCallback() {
+      @Override public void onRegistered(String s) {
+        if (BuildConfig.DEBUG) {
+          LLogUtils.i("获取到了推送ID:" + s);
+        }
+      }
+    });
   }
 
   private void initView() {
@@ -83,7 +85,7 @@ public class MainActivity extends CommonActivity {
     int id = item.getItemId();
 
     if (id == R.id.action_settings) {
-      startActivity(new Intent(this,AboutActivity.class));
+      startActivity(new Intent(this, AboutActivity.class));
       return true;
     }
 

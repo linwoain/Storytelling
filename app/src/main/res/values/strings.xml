@@ -9,4 +9,11 @@
   每集大概在10M左右\n本项目已开源至https://github.com/linwoain/Storytelling 有做程序的小伙伴可以一起来
   </string>
   <string name="action_settings">Settings</string>
+    <string name="night">夜间模式</string>
+    <string name="author">作者</string>
+  <string name="linwoain">linwoain</string>
+  <string name="q_q">Q Q</string>
+  <string name="qq_no">1017368540</string>
+  <string name="email">Email</string>
+  <string name="email_content">lin@linwoain.com</string>
 </resources>

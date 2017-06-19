@@ -14,10 +14,8 @@ import com.squareup.picasso.Picasso
 
 /**
  * create by linwoain on 2016/6/3
- *  * LinAdapter通用的构造方法
-
+ *  LinAdapter通用的构造方法
  * @param context 传入的上下文
- * *
  * @param beans 要显示的数据源封装好的列表
  */
 class BookAdapter(context: Activity, beans: List<BookInfo>) : LinAdapter<BookInfo>(context, beans) {
@@ -27,15 +25,16 @@ class BookAdapter(context: Activity, beans: List<BookInfo>) : LinAdapter<BookInf
         if (convertView == null) {
             convertView = LViewHelper.getView(R.layout.item_main, context)
         }
-        val icon = LinAdapter.ViewHolders.get<ImageView>(convertView!!, R.id.icon)
+        val icon = LinAdapter.ViewHolders.get<ImageView>(convertView, R.id.icon)
         val (_, coverImage, _, name, _, title) = beans[position]
         Picasso.with(context).load(coverImage).error(R.drawable.listen).into(icon)
 
-        (LinAdapter.ViewHolders.get<View>(convertView, R.id.title) as TextView).text = name
+        ViewHolders.get<TextView>(convertView, R.id.title).text = name
         if (!LLStringTools.isEmpty(title)) {
-            (LinAdapter.ViewHolders.get<View>(convertView, R.id.status) as TextView).text = String.format("已经听到：%s", title)
+            ViewHolders.get<TextView>(convertView, R.id.status).text = String.format("已经听到：%s", title)
         }
 
-        return convertView
+
+        return convertView!!
     }
 }

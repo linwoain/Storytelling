@@ -9,7 +9,7 @@ import com.linwoain.library.LinAdapter
 import com.linwoain.storytelling.bean.ChapterBean
 
 /**
- * create by wuxuejian on 2016/6/3
+ * create by linwoain on 2016/6/3
  */
 class MuluAdapter
 /**

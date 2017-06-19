@@ -24,7 +24,7 @@ class Mp3PlayerService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    protected fun onHandleIntent(intent: Intent?) {
+    private fun onHandleIntent(intent: Intent?) {
         if (intent != null) {
             val chapters = intent.getSerializableExtra(EXTRA_PARAM1) as List<ChapterBean>
             val position = intent.getIntExtra(EXTRA_PARAM2, 0)

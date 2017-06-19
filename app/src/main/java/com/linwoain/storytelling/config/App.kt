@@ -7,7 +7,7 @@ import com.linwoain.storytelling.BuildConfig
 import com.linwoain.util.LLogUtils
 
 /**
- * Created by snow0358530 on 2016/6/3.
+ * Created by linwoain on 2016/6/3.
  */
 class App : Application() {
 

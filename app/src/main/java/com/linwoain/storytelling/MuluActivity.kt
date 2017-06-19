@@ -12,7 +12,6 @@ import com.linwoain.storytelling.config.Constant
 import com.linwoain.storytelling.mp3media.Mp3PlayerManager
 import com.linwoain.storytelling.service.Mp3PlayerService
 import com.linwoain.util.CacheUtil
-import com.linwoain.util.LLogUtils
 import kotlinx.android.synthetic.main.activity_mulu.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.greenrobot.eventbus.EventBus
@@ -68,7 +67,6 @@ class MuluActivity : AppCompatActivity() {
             play.setImageResource(R.drawable.play_selector)
             Mp3PlayerManager.instance.pause()
             play.setOnClickListener(replayListener)
-            LLogUtils.log()
         }
     }
 

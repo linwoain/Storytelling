@@ -6,7 +6,6 @@ import com.linwoain.storytelling.bean.ChapterBean
 import com.linwoain.storytelling.bus.Progress
 import com.linwoain.storytelling.config.Constant
 import com.linwoain.util.CacheUtil
-import com.linwoain.util.LLogUtils
 import org.greenrobot.eventbus.EventBus
 import java.io.IOException
 import java.util.*
@@ -61,7 +60,6 @@ class Mp3PlayerManager private constructor() : MediaPlayer.OnPreparedListener, M
     }
 
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
-        LLogUtils.e("播放出错了" + what)
         return false
     }
 

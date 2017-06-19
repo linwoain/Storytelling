@@ -10,7 +10,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import com.linwoain.storytelling.bean.ChapterBean;
 import com.linwoain.storytelling.mp3media.Mp3PlayerManager;
-import com.umeng.analytics.MobclickAgent;
 import java.io.Serializable;
 import java.util.List;
 
@@ -24,7 +23,6 @@ public class Mp3PlayerService extends Service {
   }
 
   public static void openMp3(Context context, List<ChapterBean> chapters, int postion) {
-    MobclickAgent.onEvent(context,"read");
     Intent intent = new Intent(context, Mp3PlayerService.class);
     intent.putExtra(EXTRA_PARAM1, (Serializable) chapters);
     intent.putExtra(EXTRA_PARAM2, postion);

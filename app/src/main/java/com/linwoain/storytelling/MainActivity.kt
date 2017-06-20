@@ -20,13 +20,12 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
 
-    internal var books: MutableList<BookInfo> = Collections.synchronizedList(ArrayList())
+    internal var books: ArrayList<BookInfo> = ArrayList()
+
     internal var adapter: BookAdapter? = null
     private val flowerUrl = "http://42.121.125.229:8080/audible-book/service/audioBooksV2/getBookChaptersByPage?market=k-app360&refer=SearchResultBookList&dir=DESC&token=QUi2Cp%2BU09ITUXjudFZ2CtiCKUWfP1%2FT5KepiuHKXM77WDCYJwpQNoxu37pltHhH&pageSize=200&bookId=190518&imsi=460072521701419&ver=3.9.1&appKey=audibleBook"
     private val huaxuyinUrl = "http://42.121.125.229:8080/audible-book/service/audioBooksV2/getBookChaptersByPage?market=k-app360&refer=SearchResultBookList&dir=ASC&token=QUi2Cp%2BU09ITUXjudFZ2CtiCKUWfP1%2FT5KepiuHKXM77WDCYJwpQNoxu37pltHhH&pageSize=200&bookId=212947&imsi=460072521701419&ver=3.9.1&appKey=audibleBook"
@@ -37,7 +36,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         registerEventBus()
         initView()
-        getData()
+        val tempBooks = savedInstanceState?.getSerializable(BUNDLE_BOOKS)
+        if (tempBooks != null) {
+            books.addAll(tempBooks as ArrayList<BookInfo>)
+        }
+        Logger.d("boos.size = ${books.size}")
+        if (books.size == 0) {
+            getData()
+
+        } else {
+            setData()
+        }
 
     }
 
@@ -121,6 +130,15 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         EventBus.getDefault().unregister(this)
         super.onDestroy()
+    }
+
+    val BUNDLE_BOOKS = "BUNDLE_BOOKS"
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        if (books.size == 2) {
+            outState?.putSerializable(BUNDLE_BOOKS, books)
+        }
     }
 
 

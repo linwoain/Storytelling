@@ -19,7 +19,9 @@
       <fields>;
       public <methods>;
  }
+
 -dontwarn com.squareup.okhttp.**
+
 
 #eventbus
 -keepclassmembers class ** {

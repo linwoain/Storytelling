@@ -7,11 +7,14 @@ import android.view.View
 import com.linwoain.storytelling.adapter.MuluAdapter
 import com.linwoain.storytelling.bean.BookInfo
 import com.linwoain.storytelling.bean.ChapterBean
+import com.linwoain.storytelling.bean.Novel
 import com.linwoain.storytelling.bus.Progress
 import com.linwoain.storytelling.config.Constant
 import com.linwoain.storytelling.mp3media.Mp3PlayerManager
 import com.linwoain.storytelling.service.Mp3PlayerService
+import com.linwoain.storytelling.utils.process
 import com.linwoain.util.CacheUtil
+import com.linwoain.util.GsonUtil
 import kotlinx.android.synthetic.main.activity_mulu.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.greenrobot.eventbus.EventBus
@@ -73,13 +76,27 @@ class MuluActivity : AppCompatActivity() {
     private fun initData() {
 
         bar_title.text = info.name
-        chapters.addAll(info.chapter)
-        setData()
+        val bookId = info.bookId
+        getDataFromNet(bookId)
+
+
+    }
+
+    companion object {
+        private val NOTE_GET_URL = "http://42.121.125.229:8080/audible-book/service/audioBooksV2/getBookChaptersByPage?dir=DESC&&pageSize=200&bookId="
+    }
+
+    private fun getDataFromNet(bookId: Int) {
+        process(NOTE_GET_URL + bookId) {
+            val bookInfo = GsonUtil.get(it, BookInfo::class.java)
+            chapters.addAll(bookInfo.chapter)
+            setData()
+        }
 
     }
 
     val info by lazy {
-        intent.extras.getSerializable(Constant.BEAN) as BookInfo
+        intent.extras.getSerializable(Constant.BEAN) as Novel
     }
 
     private fun showPlay() {

@@ -6,7 +6,8 @@ import android.support.v7.app.AppCompatDelegate
 import android.view.Menu
 import android.view.MenuItem
 import com.linwoain.storytelling.adapter.BookAdapter
-import com.linwoain.storytelling.bean.BookInfo
+import com.linwoain.storytelling.bean.Novel
+import com.linwoain.storytelling.bean.NovelWrapper
 import com.linwoain.storytelling.bus.Progress
 import com.linwoain.storytelling.config.Constant
 import com.linwoain.storytelling.utils.process
@@ -24,11 +25,13 @@ import org.jetbrains.anko.toast
 
 class MainActivity : AppCompatActivity() {
 
-    internal var books: ArrayList<BookInfo> = ArrayList()
+    internal var books: ArrayList<Novel> = ArrayList()
 
     internal var adapter: BookAdapter? = null
-    private val flowerUrl = "http://42.121.125.229:8080/audible-book/service/audioBooksV2/getBookChaptersByPage?market=k-app360&refer=SearchResultBookList&dir=DESC&token=QUi2Cp%2BU09ITUXjudFZ2CtiCKUWfP1%2FT5KepiuHKXM77WDCYJwpQNoxu37pltHhH&pageSize=200&bookId=190518&imsi=460072521701419&ver=3.9.1&appKey=audibleBook"
-    private val huaxuyinUrl = "http://42.121.125.229:8080/audible-book/service/audioBooksV2/getBookChaptersByPage?market=k-app360&refer=SearchResultBookList&dir=ASC&token=QUi2Cp%2BU09ITUXjudFZ2CtiCKUWfP1%2FT5KepiuHKXM77WDCYJwpQNoxu37pltHhH&pageSize=200&bookId=212947&imsi=460072521701419&ver=3.9.1&appKey=audibleBook"
+
+    companion object {
+        private val NOVEL_LIST_URL = "https://bwg.linwoain.com/novel"
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         initView()
         val tempBooks = savedInstanceState?.getSerializable(BUNDLE_BOOKS)
         if (tempBooks != null) {
-            books.addAll(tempBooks as ArrayList<BookInfo>)
+            books.addAll(tempBooks as ArrayList<Novel>)
         }
         Logger.d("boos.size = ${books.size}")
         if (books.size == 0) {
@@ -90,23 +93,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun getData() {
 
-        process(flowerUrl) {
-            val result = GsonUtil.get(it, BookInfo::class.java)
-            result.name = "花千骨"
-            result.url = flowerUrl
-            result.bookId = 190518
-            books.add(result)
+        process(NOVEL_LIST_URL) {
+            Logger.json(it)
+            val wrapper = GsonUtil.get(it, NovelWrapper::class.java)
+            books.addAll(wrapper.novels)
             setData()
         }
-        process(huaxuyinUrl) {
-            val result = GsonUtil.get(it, BookInfo::class.java)
-            result.name = "华胥引"
-            result.url = huaxuyinUrl
-            result.bookId = 212947
-            books.add(result)
-            setData()
 
-        }
 
 
     }
@@ -118,13 +111,12 @@ class MainActivity : AppCompatActivity() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun event(progress: Progress) {
-        for (book in books) {
-            if (book.bookId == progress.bookId) {
-                book.title = progress.title
+        books.forEach {
+            if (it.bookId == progress.bookId) {
+                it.title = progress.title
                 setData()
             }
         }
-
     }
 
     override fun onDestroy() {

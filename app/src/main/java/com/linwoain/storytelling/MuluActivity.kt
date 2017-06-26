@@ -16,10 +16,12 @@ import com.linwoain.storytelling.utils.process
 import com.linwoain.util.CacheUtil
 import com.linwoain.util.GsonUtil
 import kotlinx.android.synthetic.main.activity_mulu.*
-import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.content_mulu.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.jetbrains.anko.toast
+import org.litepal.crud.DataSupport
 import java.util.*
 
 
@@ -51,12 +53,7 @@ class MuluActivity : AppCompatActivity() {
 
 
     private val playListener = View.OnClickListener {
-        val c = CacheUtil.getBaseBean(Constant.MULU + info.bookId) as ChapterBean
-        var i = chapters.indexOf(c)
-        if (i < 0) {
-            i = 0
-        }
-        Mp3PlayerService.openMp3(this@MuluActivity, chapters, i)
+        Mp3PlayerService.openMp3(this@MuluActivity, chapters, 0)
     }
     val replayListener: View.OnClickListener = View.OnClickListener {
         if (Mp3PlayerManager.instance.playingBookId == info.bookId) {
@@ -73,31 +70,53 @@ class MuluActivity : AppCompatActivity() {
         }
     }
 
+    val info by lazy {
+        intent.extras.getSerializable(Constant.BEAN) as Novel
+    }
+
     private fun initData() {
 
         bar_title.text = info.name
         val bookId = info.bookId
-        getDataFromNet(bookId)
+        val dataFromDB = getDataFromDB(bookId)
+        if (dataFromDB.isNotEmpty()) {
+            chapters.addAll(dataFromDB)
+            setAdapter()
+        } else {
+            getDataFromNet(bookId)
+        }
+    }
 
-
+    private fun getDataFromDB(bookId: Int): List<ChapterBean> {
+        return DataSupport.where("bookId = ?", bookId.toString()).find(ChapterBean::class.java)
     }
 
     companion object {
         private val NOTE_GET_URL = "http://42.121.125.229:8080/audible-book/service/audioBooksV2/getBookChaptersByPage?dir=DESC&&pageSize=200&bookId="
+        val MULU_SORT = "mulu_sort"
+
     }
 
     private fun getDataFromNet(bookId: Int) {
         process(NOTE_GET_URL + bookId) {
-            val bookInfo = GsonUtil.get(it, BookInfo::class.java)
-            chapters.addAll(bookInfo.chapter)
-            setData()
+            swipe.isRefreshing = false
+            if (it.isEmpty()) {
+                toast("获取目录失败")
+            } else {
+                val bookInfo = GsonUtil.get(it, BookInfo::class.java)
+                chapters.addAll(bookInfo.chapter)
+                chapters.sortBy { it.id }
+                chapters.forEach {
+                    it.bookId = info.bookId
+                    it.save()
+                }
+                setAdapter()
+            }
         }
 
     }
 
-    val info by lazy {
-        intent.extras.getSerializable(Constant.BEAN) as Novel
-    }
+    var sorted = false
 
     private fun showPlay() {
         val drawable = play.drawable
@@ -113,6 +132,12 @@ class MuluActivity : AppCompatActivity() {
             showPlay()
             play.setOnClickListener(pauseListener)
         }
+        sorted = CacheUtil.getBoolean(MULU_SORT + info.bookId)
+        setListSort()
+    }
+
+    private fun setListSort() {
+        swap.setBackgroundResource(if (sorted) R.drawable.ic_list_down else R.drawable.ic_list_up)
     }
 
     internal var chapters: MutableList<ChapterBean> = ArrayList()
@@ -124,15 +149,30 @@ class MuluActivity : AppCompatActivity() {
 
     private fun initView() {
         setSupportActionBar(toolbar)
-        listview.setOnItemClickListener { _, _, position, _ -> Mp3PlayerService.openMp3(this, chapters, position) }
+        listview.setOnItemClickListener { _, _, position, _ ->
+            Mp3PlayerService.openMp3(this, chapters, position)
+        }
         play.setOnClickListener(playListener)
+        swap.setOnClickListener {
+            sorted = !sorted
+            CacheUtil.save(MULU_SORT + info.bookId, sorted)
+            Collections.reverse(chapters)
+            adapter?.notifyDataSetChanged()
+            setListSort()
+        }
+        swipe.setColorSchemeResources(R.color.colorAccent)
+        swipe.setOnRefreshListener {
+            getDataFromNet(bookId = info.bookId)
+        }
     }
 
-    private fun setData() {
-        for (chapter in chapters) {
-            chapter.bookId = info.bookId
+    var adapter: MuluAdapter? = null
+    private fun setAdapter() {
+        if (adapter == null) {
+            adapter = MuluAdapter(this, chapters)
+            listview.adapter = adapter
+        } else {
+            adapter?.notifyDataSetChanged()
         }
-        val adapter = MuluAdapter(this, chapters)
-        listview.adapter = adapter
     }
 }

@@ -50,9 +50,6 @@ class Mp3PlayerService : Service() {
                     }
                 }
             }
-            //只监听拔出耳机
-            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY == intent.action) {
-            }
         }
     }
 

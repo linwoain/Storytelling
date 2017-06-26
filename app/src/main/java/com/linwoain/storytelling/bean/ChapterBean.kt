@@ -1,5 +1,7 @@
 package com.linwoain.storytelling.bean
 
-import com.linwoain.bean.BaseBean
+import org.litepal.annotation.Column
+import org.litepal.crud.DataSupport
+import java.io.Serializable
 
-data class ChapterBean(var id: Int, var title: String, var number: Int, var audioURL: String, var bookId: Int) : BaseBean()
+data class ChapterBean(@Column(unique = true) val id: Int, val title: String, val number: Int, val audioURL: String, var bookId: Int) : Serializable, DataSupport()

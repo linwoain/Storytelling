@@ -7,7 +7,6 @@ import com.linwoain.storytelling.bus.Progress
 import com.linwoain.storytelling.config.Constant
 import com.linwoain.util.CacheUtil
 import org.greenrobot.eventbus.EventBus
-import java.io.IOException
 import java.util.*
 
 /**
@@ -35,19 +34,14 @@ class Mp3PlayerManager private constructor() : MediaPlayer.OnPreparedListener, M
     }
 
     private fun preparePlay(audioURL: String) {
-        try {
-            player?.setDataSource(audioURL)
-            player?.prepare()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
+        player?.setDataSource(audioURL)
+        player?.prepare()
 
     }
 
     override fun onPrepared(mp: MediaPlayer) {
+        CacheUtil.save(Constant.MULU + playingBookId, curPos)
         val content = curChapters[curPos]
-        CacheUtil.save(Constant.MULU + content.bookId, content)
-        EventBus.getDefault().post(content)
         EventBus.getDefault().post(Progress(mp.duration, content.bookId, true, curPos, content.title))
         mp.start()
     }
@@ -71,10 +65,7 @@ class Mp3PlayerManager private constructor() : MediaPlayer.OnPreparedListener, M
     }
 
     fun restart() {
-
-        if (player != null) {
-            player?.start()
-        }
+        player?.start()
     }
 
     val playingBookId: Int

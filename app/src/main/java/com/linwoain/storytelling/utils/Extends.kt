@@ -14,10 +14,15 @@ import java.net.URL
  * @param f 获取到资源后执行的操作
  */
 fun Context.process(url: String, f: (text: String) -> Unit): Unit {
-    doAsync {
-        val text = URL(url).readText()
-        uiThread {
-            f(text)
+    try {
+        doAsync {
+            val text = URL(url).readText()
+            uiThread {
+                f(text)
+            }
         }
+    } catch (e: Exception) {
+        f("")
     }
 }
+

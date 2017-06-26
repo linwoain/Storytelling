@@ -21,6 +21,8 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
+import org.litepal.crud.DataSupport
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +33,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private val NOVEL_LIST_URL = "https://bwg.linwoain.com/novel"
+        private val BUNDLE_BOOKS = "BUNDLE_BOOKS"
+
     }
 
 
@@ -43,10 +47,8 @@ class MainActivity : AppCompatActivity() {
         if (tempBooks != null) {
             books.addAll(tempBooks as ArrayList<Novel>)
         }
-        Logger.d("boos.size = ${books.size}")
         if (books.size == 0) {
             getData()
-
         } else {
             setData()
         }
@@ -93,14 +95,35 @@ class MainActivity : AppCompatActivity() {
 
     private fun getData() {
 
+        val data = getDataFromDB()
+        if (data.isNotEmpty()) {
+            Logger.d("book data from db")
+            books.addAll(data)
+            setData()
+            return
+        }
+        getDataFromNet()
+
+
+    }
+
+    private fun getDataFromNet() {
         process(NOVEL_LIST_URL) {
-            Logger.json(it)
             val wrapper = GsonUtil.get(it, NovelWrapper::class.java)
             books.addAll(wrapper.novels)
+            setDataToDB()
             setData()
         }
+    }
 
+    private fun setDataToDB() {
+        books.forEach {
+            it.save()
+        }
+    }
 
+    private fun getDataFromDB(): List<Novel> {
+        return DataSupport.findAll(Novel::class.java)
 
     }
 
@@ -124,7 +147,6 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    val BUNDLE_BOOKS = "BUNDLE_BOOKS"
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)

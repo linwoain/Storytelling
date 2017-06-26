@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        registerEventBus()
         initView()
         val tempBooks = savedInstanceState?.getSerializable(BUNDLE_BOOKS)
         if (tempBooks != null) {
@@ -127,25 +126,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun registerEventBus() {
-        EventBus.getDefault().register(this)
-    }
-
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun event(progress: Progress) {
-        books.forEach {
-            if (it.bookId == progress.bookId) {
-                it.title = progress.title
-                setData()
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        EventBus.getDefault().unregister(this)
-        super.onDestroy()
-    }
 
 
     override fun onSaveInstanceState(outState: Bundle?) {

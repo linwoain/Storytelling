@@ -3,10 +3,12 @@ package com.linwoain.storytelling.mp3media
 import android.media.AudioManager
 import android.media.MediaPlayer
 import com.linwoain.storytelling.bean.ChapterBean
+import com.linwoain.storytelling.bean.Novel
 import com.linwoain.storytelling.bus.Progress
 import com.linwoain.storytelling.config.Constant
 import com.linwoain.util.CacheUtil
 import org.greenrobot.eventbus.EventBus
+import org.litepal.crud.DataSupport
 import java.util.*
 
 /**

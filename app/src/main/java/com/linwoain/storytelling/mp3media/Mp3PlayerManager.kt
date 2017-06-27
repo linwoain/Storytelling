@@ -44,7 +44,10 @@ class Mp3PlayerManager private constructor() : MediaPlayer.OnPreparedListener, M
     override fun onPrepared(mp: MediaPlayer) {
         CacheUtil.save(Constant.MULU + playingBookId, curPos)
         val content = curChapters[curPos]
-        EventBus.getDefault().post(Progress(mp.duration, content.bookId, true, curPos, content.title))
+        EventBus.getDefault().postSticky(Progress(mp.duration, content.bookId, true, curPos, content.title))
+        val novel = DataSupport.where("bookId = ?", playingBookId.toString()).findFirst(Novel::class.java)
+        novel.title=content.title
+        novel.save()
         mp.start()
     }
 

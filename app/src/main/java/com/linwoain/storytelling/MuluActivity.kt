@@ -39,11 +39,18 @@ class MuluActivity : AppCompatActivity() {
     }
 
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun event(progress: Progress) {
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    fun onEvent(progress: Progress) {
         if (progress.bookId == info.bookId) {
             if (progress.isPlaying) {
                 play.setImageResource(R.drawable.playing)
+                val s: String
+                if (progress.title.contains(info.name)) {
+                    s = "正在播放：${progress.title}"
+                } else {
+                    s = "正在播放：${info.name} ${progress.title}"
+                }
+                bar_title.text = s
                 showPlay()
 
                 play.setOnClickListener(pauseListener)
@@ -171,6 +178,10 @@ class MuluActivity : AppCompatActivity() {
         if (adapter == null) {
             adapter = MuluAdapter(this, chapters)
             listview.adapter = adapter
+            val position = CacheUtil.getInt(Constant.MULU + info.bookId)
+            if (position in 0 until (chapters.size)) {
+                listview.setSelection(position)
+            }
         } else {
             adapter?.notifyDataSetChanged()
         }

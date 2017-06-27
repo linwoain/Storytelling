@@ -96,14 +96,22 @@ class MainActivity : AppCompatActivity() {
 
         val data = getDataFromDB()
         if (data.isNotEmpty()) {
-            Logger.d("book data from db")
             books.addAll(data)
             setData()
             return
         }
         getDataFromNet()
+    }
 
 
+    override fun onRestart() {
+        super.onRestart()
+        val data = getDataFromDB()
+        if (data.isNotEmpty()) {
+            books.clear()
+            books.addAll(data)
+        }
+        adapter?.notifyDataSetChanged()
     }
 
     private fun getDataFromNet() {
